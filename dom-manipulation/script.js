@@ -36,7 +36,15 @@ function addQuote() {
   }
 
   const newQuote = { text, category };
-  quotes.push(newQuote);
+  quotes.push(newQuote); // ✅ Add to array
+
+  // Clear inputs
+  newQuoteText.value = "";
+  newQuoteCategory.value = "";
+
+  alert("Quote added successfully!");
+}
+
 
   // Clear input fields
   newQuoteText.value = "";
