@@ -11,16 +11,18 @@ let quotes = [
   { text: "An investment in knowledge pays the best interest.", category: "Education" },
 ];
 
-// Display a random quote
+// Display a random quote using innerHTML
 function showRandomQuote() {
   if (quotes.length === 0) {
-    quoteDisplay.textContent = "No quotes available.";
+    quoteDisplay.innerHTML = "<em>No quotes available.</em>";
     return;
   }
 
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const quote = quotes[randomIndex];
-  quoteDisplay.textContent = `"${quote.text}" - [${quote.category}]`;
+
+  // Using innerHTML to insert formatted content
+  quoteDisplay.innerHTML = `"<strong>${quote.text}</strong>" - <span>[${quote.category}]</span>`;
 }
 
 // Add a new quote from the form
