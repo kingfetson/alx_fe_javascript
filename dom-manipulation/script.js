@@ -1,4 +1,4 @@
-const quoteDisplay = document.getElementById("quoteDisplay");
+const quoteDisplay = document.getElementById("quoteDisplay"); 
 const newQuoteBtn = document.getElementById("newQuote");
 const addQuoteBtn = document.getElementById("addQuoteBtn");
 const newQuoteText = document.getElementById("newQuoteText");
