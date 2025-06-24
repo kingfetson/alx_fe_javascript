@@ -1,4 +1,4 @@
-const quoteDisplay = document.getElementById("quoteDisplay"); 
+const quoteDisplay = document.getElementById("quoteDisplay");
 const newQuoteBtn = document.getElementById("newQuote");
 const addQuoteBtn = document.getElementById("addQuoteBtn");
 const newQuoteText = document.getElementById("newQuoteText");
@@ -11,7 +11,7 @@ let quotes = [
   { text: "An investment in knowledge pays the best interest.", category: "Education" },
 ];
 
-// Display a random quote using innerHTML
+// Display a random quote
 function showRandomQuote() {
   if (quotes.length === 0) {
     quoteDisplay.innerHTML = "<em>No quotes available.</em>";
@@ -20,12 +20,10 @@ function showRandomQuote() {
 
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const quote = quotes[randomIndex];
-
-  // Using innerHTML to insert formatted content
   quoteDisplay.innerHTML = `"<strong>${quote.text}</strong>" - <span>[${quote.category}]</span>`;
 }
 
-// Add a new quote from the form
+// Add a new quote and update DOM
 function addQuote() {
   const text = newQuoteText.value.trim();
   const category = newQuoteCategory.value.trim();
@@ -36,19 +34,14 @@ function addQuote() {
   }
 
   const newQuote = { text, category };
-  quotes.push(newQuote); // ✅ Add to array
-
-  // Clear inputs
-  newQuoteText.value = "";
-  newQuoteCategory.value = "";
-
-  alert("Quote added successfully!");
-}
-
+  quotes.push(newQuote);
 
   // Clear input fields
   newQuoteText.value = "";
   newQuoteCategory.value = "";
+
+  // Immediately show the new quote just added
+  quoteDisplay.innerHTML = `"<strong>${newQuote.text}</strong>" - <span>[${newQuote.category}]</span>`;
 
   alert("Quote added successfully!");
 }
