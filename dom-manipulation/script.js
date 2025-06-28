@@ -235,7 +235,7 @@ function updateLocalStorageWithServerData(serverQuotes) {
 
 // Function to display a random quote
 function showRandomQuote() {
-    const quoteDisplay = document.querySelector('.quote-display');
+    const quoteDisplay = document.getElementById('quote-display');
     const categoryFilter = document.getElementById('categoryFilter').value;
     
     // Filter quotes if a category is selected
@@ -358,7 +358,7 @@ function updateCategoryFilter() {
     const categoryFilter = document.getElementById('categoryFilter');
     
     // Get unique categories
-    const categories = [...new Set(quotes.map(quote => quote.category))];
+    const categories = [...new Set(quotes.map(quote => quote.category)];
     
     // Clear existing options except the "All Categories" option
     while (categoryFilter.options.length > 1) {
@@ -615,7 +615,7 @@ function init() {
     } else {
         document.querySelector('.quote-display').innerHTML = `
             <p class="quote-text">No quotes available. Add your first quote below!</p>
-            <span class="quote-category">Start by adding a quote</span>
+            <span class="quote-value">Try a different category</span>
         `;
     }
     
@@ -636,7 +636,7 @@ function init() {
 }
 
 // Function to clear all quotes from storage
-function clear() {
+function clearData() {
     clearStorage();
 }
 
