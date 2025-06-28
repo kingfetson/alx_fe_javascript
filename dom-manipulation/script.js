@@ -319,6 +319,7 @@ function createAddQuoteForm() {
 // Function to sync a quote with the server
 async function syncWithServer(quote) {
     try {
+        // Using jsonplaceholder as a mock API endpoint for posting
         const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
             method: 'POST',
             headers: {
@@ -534,7 +535,7 @@ function loadQuotes() {
 // Function to update stats
 function updateStats() {
     document.getElementById('totalQuotes').textContent = quotes.length;
-    document.getElementById('totalCategories').textContent = [...new Set(quotes.map(quote => quote.category))].length;
+    document.getElementById('totalCategories').textContent = [...new Set(quotes.map(quote => quote.category)].length;
     
     if (lastSyncTime) {
         document.getElementById('lastSync').textContent = lastSyncTime.toLocaleString();
@@ -615,7 +616,7 @@ function init() {
     } else {
         document.querySelector('.quote-display').innerHTML = `
             <p class="quote-text">No quotes available. Add your first quote below!</p>
-            <span class="quote-value">Try a different category</span>
+            <span class="quote-value">Start by adding a quote</span>
         `;
     }
     
@@ -632,8 +633,7 @@ function init() {
         if (categoryFilter.querySelector(`option[value="${storedCategoryFilter}"]`)) {
             categoryFilter.value = storedCategoryFilter;
         }
-    }
-}
+   }
 
 // Function to clear all quotes from storage
 function clearData() {
