@@ -10,9 +10,18 @@ let quotes = [
 ];
 
 // Function to show notification
-function showNotification(message) {
+function showNotification(message, isError = false) {
     const notification = document.getElementById('notification');
-    notification.textContent = message;
+    const notificationMessage = document.getElementById('notification-message');
+    
+    notificationMessage.textContent = message;
+    
+    if (isError) {
+        notification.classList.add('error');
+    } else {
+        notification.classList.remove('error');
+    }
+    
     notification.classList.add('show');
     
     setTimeout(() => {
@@ -22,7 +31,7 @@ function showNotification(message) {
 
 // Function to display a random quote
 function showRandomQuote() {
-    const quoteDisplay = document.getElementById('quoteDisplay');
+    const quoteDisplay = document.querySelector('.quote-display');
     const categoryFilter = document.getElementById('categoryFilter').value;
     
     // Filter quotes if a category is selected
@@ -33,7 +42,10 @@ function showRandomQuote() {
     
     // Check if there are quotes to display
     if (filteredQuotes.length === 0) {
-        quoteDisplay.innerHTML = '<p class="quote-text">No quotes available in this category.</p>';
+        quoteDisplay.innerHTML = `
+            <p class="quote-text">No quotes available in this category.</p>
+            <span class="quote-category">Try a different category</span>
+        `;
         return;
     }
     
@@ -44,42 +56,52 @@ function showRandomQuote() {
     // Update the DOM
     quoteDisplay.innerHTML = `
         <p class="quote-text">"${randomQuote.text}"</p>
-        <span class="quote-category">Category: ${randomQuote.category}</span>
+        <span class="quote-category">${randomQuote.category}</span>
     `;
 }
 
-// Function to add a new quote
-function addQuote() {
-    const newQuoteText = document.getElementById('newQuoteText').value.trim();
-    const newQuoteCategory = document.getElementById('newQuoteCategory').value.trim();
+// Function to create the add quote form
+function createAddQuoteForm() {
+    // The form is already in the HTML structure, but we can enhance it programmatically
+    const form = document.getElementById('addQuoteForm');
     
-    // Validate input
-    if (!newQuoteText || !newQuoteCategory) {
-        showNotification('Please enter both quote text and category.');
-        return;
-    }
+    // Add event listener to the form
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const newQuoteText = document.getElementById('newQuoteText').value.trim();
+        const newQuoteCategory = document.getElementById('newQuoteCategory').value.trim();
+        
+        // Validate input
+        if (!newQuoteText || !newQuoteCategory) {
+            showNotification('Please enter both quote text and category.', true);
+            return;
+        }
+        
+        // Create new quote object
+        const newQuote = {
+            text: newQuoteText,
+            category: newQuoteCategory
+        };
+        
+        // Add to quotes array
+        quotes.push(newQuote);
+        
+        // Clear form inputs
+        document.getElementById('newQuoteText').value = '';
+        document.getElementById('newQuoteCategory').value = '';
+        
+        // Update category filter dropdown
+        updateCategoryFilter();
+        
+        // Show the new quote
+        showRandomQuote();
+        
+        // Show notification
+        showNotification('Quote added successfully!');
+    });
     
-    // Create new quote object
-    const newQuote = {
-        text: newQuoteText,
-        category: newQuoteCategory
-    };
-    
-    // Add to quotes array
-    quotes.push(newQuote);
-    
-    // Clear form inputs
-    document.getElementById('newQuoteText').value = '';
-    document.getElementById('newQuoteCategory').value = '';
-    
-    // Update category filter dropdown
-    updateCategoryFilter();
-    
-    // Show the new quote
-    showRandomQuote();
-    
-    // Show notification
-    showNotification('Quote added successfully!');
+    return form;
 }
 
 // Function to update the category filter dropdown
@@ -110,6 +132,9 @@ function init() {
     
     // Initialize category filter
     updateCategoryFilter();
+    
+    // Create the add quote form
+    createAddQuoteForm();
     
     // Show a random quote on page load
     showRandomQuote();
