@@ -8,6 +8,7 @@ let isSyncing = false;
 let isConflictDetected = false;
 let currentConflict = null;
 let serverQuotes = [];
+let syncInterval = null;
 
 // Function to show notification
 function showNotification(message, isError = false) {
@@ -29,7 +30,7 @@ function showNotification(message, isError = false) {
     }, 3000);
 }
 
-// Function to fetch quotes from the server
+// Function to fetch quotes from the server using a mock API
 async function fetchQuotesFromServer() {
     const syncStatus = document.getElementById('syncStatusText');
     const syncStatusElement = document.querySelector('.sync-status');
@@ -39,17 +40,25 @@ async function fetchQuotesFromServer() {
     syncStatusElement.classList.add('syncing');
     
     try {
-        // Make the API call to fetch quotes
-        const response = await fetch('https://your-api-endpoint.com/quotes');
+        // Using jsonplaceholder as a mock API
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
         
         if (!response.ok) {
             throw new Error(`Server responded with status: ${response.status}`);
         }
         
-        const serverQuotes = await response.json();
+        const serverData = await response.json();
         
-        // Process the server quotes (e.g., merge with local quotes)
-        processServerQuotes(serverQuotes);
+        // Convert mock API data to our quote format
+        const serverQuotes = serverData.map(item => ({
+            text: item.title,
+            category: item.body.substring(0, 20) + (item.body.length > 20 ? '...' : ''),
+            id: item.id.toString(),
+            lastUpdated: new Date().toISOString()
+        }));
+        
+        // Process the server quotes
+        await syncQuotes(serverQuotes);
         
         // Update sync status
         syncStatus.textContent = 'Quotes fetched from server successfully!';
@@ -68,10 +77,13 @@ async function fetchQuotesFromServer() {
     }
 }
 
-// Function to process server quotes and handle conflicts
-function processServerQuotes(serverQuotes) {
-    // Store the server quotes for reference
-    serverQuotes = serverQuotes;
+// Function to sync quotes with server
+async function syncQuotes(serverQuotes) {
+    // First, check if we're online
+    if (!isOnline) {
+        showNotification('Cannot sync while offline. Try again when online.', true);
+        return;
+    }
     
     // Check for conflicts between local and server quotes
     const conflicts = [];
@@ -121,7 +133,104 @@ function processServerQuotes(serverQuotes) {
         updateCategoryFilter();
         showRandomQuote();
         updateStats();
+        
+        // Post updated quotes to server
+        await postQuotesToServer();
     }
+}
+
+// Function to post quotes to the server
+async function postQuotesToServer() {
+    try {
+        // Using jsonplaceholder as a mock API endpoint for posting
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                title: 'Synced quotes',
+                body: JSON.stringify(quotes),
+                userId: 1
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Server responded with status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('Quotes posted to server:', result);
+    } catch (error) {
+        console.error('Error posting quotes to server:', error);
+        showNotification('Failed to post quotes to server.', true);
+    }
+}
+
+// Function to periodically check for new quotes from the server
+function startPeriodicSync() {
+    if (syncInterval) {
+        clearInterval(syncInterval);
+    }
+    
+    // Sync every 30 seconds when online
+    syncInterval = setInterval(async () => {
+        if (isOnline && !isSyncing) {
+            isSyncing = true;
+            await fetchQuotesFromServer();
+            isSyncing = false;
+        }
+    }, 30000);
+}
+
+// Function to stop periodic sync
+function stopPeriodicSync() {
+    if (syncInterval) {
+        clearInterval(syncInterval);
+        syncInterval = null;
+    }
+}
+
+// Function to update local storage with server data
+function updateLocalStorageWithServerData(serverQuotes) {
+    // Check for conflicts between local and server quotes
+    const conflicts = [];
+    
+    // Compare each local quote with server quotes
+    quotes.forEach(localQuote => {
+        const serverQuote = serverQuotes.find(serverQuote => 
+            serverQuote.text === localQuote.text && 
+            serverQuote.category === localQuote.category
+        );
+        
+        if (serverQuote) {
+            // Check if there are differences
+            if (serverQuote.lastUpdated > localQuote.lastUpdated) {
+                // Server version is newer
+                conflicts.push({
+                    local: localQuote,
+                    server: serverQuote
+                });
+            }
+        }
+    });
+    
+    // If there are conflicts, we'll let the user resolve them
+    if (conflicts.length > 0) {
+        isConflictDetected = true;
+        currentConflict = conflicts[0];
+        showConflictResolution();
+        return false; // Return false to indicate conflicts
+    }
+    
+    // No conflicts, update local storage with server data
+    quotes = serverQuotes;
+    saveQuotes();
+    updateCategoryFilter();
+    showRandomQuote();
+    updateStats();
+    
+    return true; // Return true to indicate successful update
 }
 
 // Function to display a random quote
@@ -210,7 +319,7 @@ function createAddQuoteForm() {
 // Function to sync a quote with the server
 async function syncWithServer(quote) {
     try {
-        const response = await fetch('https://your-api-endpoint.com/quotes', {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -475,11 +584,17 @@ function init() {
             
             // If we're going online, fetch quotes from server
             await fetchQuotesFromServer();
+            
+            // Start periodic sync
+            startPeriodicSync();
         } else {
             serverStatus.textContent = 'Offline';
             serverStatus.className = 'server-status offline';
             document.querySelector('.sync-status').textContent = 'Offline';
             document.querySelector('.sync-status').className = 'sync-status';
+            
+            // Stop periodic sync
+            stopPeriodicSync();
         }
     });
     
@@ -521,7 +636,7 @@ function init() {
 }
 
 // Function to clear all quotes from storage
-function clearData() {
+function clear() {
     clearStorage();
 }
 
