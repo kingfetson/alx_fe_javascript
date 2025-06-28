@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML/>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-storage-scale=1.0">
     <title>Dynamic Quote Generator</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+  
 </head>
 <body>
     <div class="container">
@@ -14,38 +14,53 @@
             <p>Discover inspiration with our collection of quotes</p>
         </header>
         
-        <div class="card">
-            <div class="quote-display">
-                <p class="quote-text">Click the button below to generate a random quote.</p>
-                <span class="quote-category"></span>
+        <div class="mock-server">
+            <h3><i class="fas fa-server"></i> Mock Server Simulation</h.outline"></div>
+            <div class="mock-server-toggle">
+                <span>Server Status:</span>
+                <div class="mock-server-status offline">Offline</div>
+                <label class="switch">
+                    <input type="checkbox" id="serverToggle">
+                    <span class="slider"></span>
+                </label>
             </div>
-            
-            <div class="controls">
-                <button id="newQuote" class="btn">
-                    <i class="fas fa-random"></i> Show New Quote
-                </button>
-                
-                <div class="category-filter">
-                    <label for="categoryFilter">Filter by category:</label>
-                    <select id="categoryFilter">
-                        <option value="all">All Categories</option>
-                    </select>
-                </div>
+        </div>
+        
+        <div class="stats-container">
+            <div class="stat-item">
+                <div id="totalQuotes" class="stat-value">0</div>
+                <div class="stat-label">Total Quotes</div>
             </div>
+            <div class="stat-item">
+                <div id="totalCategories" class="stat-value">0</div>
+                <div class="stat-label">Categories</div>
+            </div>
+            <div class="stat-item">
+                <div id="lastSync" class="stat-value">Never</div>
+                <div class="stat-label">Last Sync</div>
+            </div>
+        </div>
+        
+        <div class="sync-status">
+            <span>Sync Status:</span>
+            <div id="syncStatusText">Ready</div>
+        </div>
+        
+        <div class="quote-display">
+            <p class="quote-text">Click the button below to generate a random quote.</p>
+            <span class="quote-category">Click the button below to generate a random quote.</span>
+        </div>
+        
+        <div class="controls">
+            <button id="newQuote" class="btn">
+                <i class="fas fa-random"></i> Show New Quote
+            </button>
             
-            <div class="stats-container">
-                <div class="stat-item">
-                    <div id="totalQuotes" class="stat-value">0</div>
-                    <div class="stat-label">Total Quotes</div>
-                </div>
-                <div class="stat-item">
-                    <div id="totalCategories" class="stat-value">0</div>
-                    <div class="stat-label">Categories</div>
-                </div>
-                <div class="stat-item">
-                    <div id="lastViewed" class="stat-value">None</div>
-                    <div class="stat-label">Last Viewed</div>
-                </div>
+            <div class="category-filter">
+                <label for="categoryFilter">Filter by category:</label>
+                <select id="categoryFilter">
+                    <option value="all">All Categories</option>
+                </select>
             </div>
         </div>
         
@@ -57,16 +72,14 @@
                 <button id="clearStorage" class="btn btn-secondary">
                     <i class="fas fa-trash-alt"></i> Clear All Quotes
                 </button>
-                <button id="exportQuotes" class="btn">
+                <button id="exportData" class="btn">
                     <i class="fas fa-file-export"></i> Export Quotes
                 </button>
-                <div class="import-export-container">
-                    <div class="file-input-container">
-                        <button class="btn btn-accent">
-                            <i class="fas fa-file-import"></i> Import Quotes
-                        </button>
-                        <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)">
-                    </div>
+                <div class="file-input-container">
+                    <button class="btn btn-accent">
+                        <i class="fas fa-file-import"></i> Import Quotes
+                    </button>
+                    <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)">
                 </div>
             </div>
         </div>
@@ -91,17 +104,37 @@
                 </div>
             </form>
         </div>
+        
+        <div id="conflict-resolution" class="conflict-resolution">
+            <h3>Conflict Detected</h3>
+            <p>A conflict has been detected between your local data and server data. Please choose how to resolve this conflict:</p>
+            
+            <div class="conflict-resolution-buttons">
+                <div class="conflict-resolution-item">
+                    <h4>Local Version</h4>
+                    <p id="localQuoteText"></p>
+                    <p id="localCategory"></p>
+                </div>
+                
+                <div class="conflict-resolution-item">
+                    <h4>Server Version</h4>
+                    <p id="serverQuoteText"></p>
+                    <p id="serverCategory"></p>
+                </div>
+            </div>
+            
+            <div class="conflict-resolution-buttons">
+                <button id="keepLocal">Keep Local Quote</button>
+                <button id="keepServer">Keep Server Quote</button>
+                <button id="mergeQuotes">Merge Quotes</button>
+            </div>
+        </div>
+        
+        <footer>
+            <p>&copy; 2023 Dynamic Quote Generator. All rights reserved.</p>
+        </footer>
     </div>
     
-    <div id="notification" class="notification">
-        <i class="fas fa-check-circle"></i>
-        <span id="notification-message"></span>
-    </div>
-    
-    <footer>
-        <p>&copy; 2023 Dynamic Quote Generator. All rights reserved.</p>
-    </footer>
-    
-   
+      
 </body>
 </html>
