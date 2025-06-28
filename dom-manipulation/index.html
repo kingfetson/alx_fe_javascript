@@ -1,23 +1,44 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dynamic Quote Generator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Quote Generator</title>
+   
 </head>
 <body>
-  <h1>Dynamic Quote Generator</h1>
-
-  <div id="quoteDisplay" style="margin-bottom: 1em; font-weight: bold;"></div>
-  <button id="newQuote">Show New Quote</button>
-
-  <hr>
-
-  <h3>Add a New Quote</h3>
-  <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
-  <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
-  <button id="addQuoteBtn">Add Quote</button>
-
-  <script src="script.js"></script>
+    <div class="container">
+        <h1>Dynamic Quote Generator</h1>
+        
+        <div id="quoteDisplay">
+            <p class="quote-text">Click the button below to generate a random quote.</p>
+            <span class="quote-category"></span>
+        </div>
+        
+        <div class="controls">
+            <button id="newQuote">Show New Quote</button>
+            
+            <div class="category-filter">
+                <label for="categoryFilter">Filter by category:</label>
+                <select id="categoryFilter">
+                    <option value="all">All Categories</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-container">
+            <h2>Add Your Own Quote</h2>
+            <div class="form-group">
+                <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
+                <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
+                <button onclick="addQuote()">Add Quote</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="notification" class="notification"></div>
+    
+    <script src="script.js"></script>
 </body>
 </html>
