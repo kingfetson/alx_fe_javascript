@@ -1,4 +1,7 @@
-  // Initialize quotes array
+ <script>
+        // Script.js
+
+        // Initialize quotes array
         let quotes = [];
         let lastViewedQuote = null;
         
@@ -6,6 +9,9 @@
         function saveQuotes() {
             localStorage.setItem('quotes', JSON.stringify(quotes));
             sessionStorage.setItem('lastViewedQuote', JSON.stringify(lastViewedQuote));
+            
+            // Update stats
+            updateStats();
         }
         
         // Function to load quotes from local storage
@@ -19,6 +25,12 @@
             const storedLastViewedQuote = sessionStorage.getItem('lastViewedQuote');
             if (storedLastViewedQuote) {
                 lastViewedQuote = JSON.parse(storedLastViewedQuote);
+            }
+            
+            // Load last selected filter
+            const lastSelectedFilter = localStorage.getItem('lastSelectedFilter');
+            if (lastSelectedFilter) {
+                document.getElementById('categoryFilter').value = lastSelectedFilter;
             }
         }
         
@@ -75,6 +87,50 @@
             // Store the last viewed quote in session storage
             lastViewedQuote = randomQuote;
             sessionStorage.setItem('lastViewedQuote', JSON.stringify(lastViewedQuote));
+            
+            // Update stats
+            document.getElementById('lastViewed').textContent = randomQuote.category;
+        }
+        
+        // Function to populate categories in the dropdown
+        function populateCategories() {
+            const categoryFilter = document.getElementById('categoryFilter');
+            
+            // Clear existing options except the "All Categories" option
+            while (categoryFilter.options.length > 1) {
+                categoryFilter.remove(1);
+            }
+            
+            // Get unique categories
+            const categories = [...new Set(quotes.map(quote => quote.category))];
+            
+            // Add category options
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoryFilter.appendChild(option);
+            });
+            
+            // Save the current filter selection
+            const currentFilter = categoryFilter.value;
+            localStorage.setItem('lastSelectedFilter', currentFilter);
+        }
+        
+        // Function to filter quotes based on selected category
+        function filterQuotes() {
+            const categoryFilter = document.getElementById('categoryFilter');
+            const selectedCategory = categoryFilter.value;
+            
+            // Save the selected category to local storage
+            localStorage.setItem('lastSelectedFilter', selectedCategory);
+            
+            // Show a notification
+            if (selectedCategory === 'all') {
+                showNotification('Showing all quotes');
+            } else {
+                showNotification(`Filtering by category: ${selectedCategory}`);
+            }
         }
         
         // Function to create the add quote form
@@ -102,11 +158,15 @@
                 // Add to quotes array
                 quotes.push(newQuote);
                 
+                // Clear form inputs
+                document.getElementById('newQuoteText').value = '';
+                document.getElementById('newQuoteCategory').value = '';
+                
+                // Update categories dropdown
+                populateCategories();
+                
                 // Save to local storage
                 saveQuotes();
-                
-                // Update category filter dropdown
-                updateCategoryFilter();
                 
                 // Show the new quote
                 showRandomQuote();
@@ -116,27 +176,6 @@
             });
             
             return form;
-        }
-        
-        // Function to update the category filter dropdown
-        function updateCategoryFilter() {
-            const categoryFilter = document.getElementById('categoryFilter');
-            
-            // Get unique categories
-            const categories = [...new Set(quotes.map(quote => quote.category))];
-            
-            // Clear existing options except the "All Categories" option
-            while (categoryFilter.options.length > 1) {
-                categoryFilter.remove(1);
-            }
-            
-            // Add category options
-            categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                categoryFilter.appendChild(option);
-            });
         }
         
         // Function to export quotes to a JSON file
@@ -170,12 +209,6 @@
         
         // Function to import quotes from a JSON file
         function importFromJsonFile(event) {
-            const file = event.target.files[0];
-            
-            if (!file) {
-                return;
-            }
-            
             const fileReader = new FileReader();
             
             fileReader.onload = function(event) {
@@ -188,7 +221,7 @@
                     
                     // Validate the imported quotes
                     const validQuotes = importedQuotes.filter(quote => {
-                        return typeof quote === 'object' && 
+                        return quote === 'object' && 
                                quote.text && typeof quote.text === 'string' && 
                                quote.category && typeof quote.category === 'string';
                     });
@@ -204,14 +237,14 @@
                     // Save to local storage
                     saveQuotes();
                     
-                    // Update category filter dropdown
-                    updateCategoryFilter();
+                    // Update categories dropdown
+                    populateCategories();
                     
                     // Show the new quote
                     showRandomQuote();
                     
-                    Show notification
-                    showNotification(`Successfully imported ${validQuotes.length} quotes!`);
+                    // Show notification
+                    showNotification(`Imported ${validQuotes.length} quotes successfully!`);
                     
                     // Reset the file input
                     document.getElementById('importFile').value = '';
@@ -221,7 +254,7 @@
                 }
             };
             
-            fileReader.readAsText(file);
+            fileReader.readAsText(event.target.files[0]);
         }
         
         // Function to clear all quotes from storage
@@ -230,9 +263,23 @@
                 quotes = [];
                 lastViewedQuote = null;
                 saveQuotes();
-                updateCategoryFilter();
+                populateCategories();
                 showRandomQuote();
                 showNotification('All quotes have been cleared.');
+            }
+        }
+        
+        // Function to update stats
+        function updateStats() {
+            document.getElementById('totalQuotes').textContent = quotes.length;
+            
+            // Get unique categories count
+            const categories = [...new Set(quotes.map(quote => quote.category))];
+            document.getElementById('totalCategories').textContent = categories.length;
+            
+            // Update last viewed if available
+            if (lastViewedQuote) {
+                document.getElementById('lastViewed').textContent = lastViewedQuote.category;
             }
         }
         
@@ -250,11 +297,14 @@
             // Add event listener to the "Clear All Quotes" button
             document.getElementById('clearStorage').addEventListener('click', clearAllQuotes);
             
+            // Add event listener to the category filter
+            document.getElementById('categoryFilter').addEventListener('change', filterQuotes);
+            
             // Create the add quote form
             createAddQuoteForm();
             
-            // Update category filter dropdown
-            updateCategoryFilter();
+            // Populate categories
+            populateCategories();
             
             // Show a random quote on page load if available
             if (quotes.length > 0) {
@@ -265,7 +315,11 @@
                     <span class="quote-category">Start by adding a quote</span>
                 `;
             }
+            
+            // Update stats
+            updateStats();
         }
         
         // Call init when the DOM is fully loaded
         document.addEventListener('DOMContentLoaded', init);
+    </script>
